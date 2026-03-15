@@ -1,2 +1,3 @@
 # Ignore Storybook stories
 *.stories.tsx
+dist

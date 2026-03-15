@@ -1,8 +1,8 @@
 # pure-shortcut
 
-[npm version](https://www.npmjs.com/package/pure-shortcut)
-[npm downloads](https://www.npmjs.com/package/pure-shortcut)
-[license](LICENSE)
+![npm](https://img.shields.io/npm/v/pure-shortcut?label=version)
+![npm downloads](https://img.shields.io/npm/dm/pure-shortcut)
+![license](https://img.shields.io/github/license/davidtorosyan/pure-shortcut?style=flat)
 
 > **Elegant, customizable keyboard shortcut provider for React components (with pure JS support).**
 
