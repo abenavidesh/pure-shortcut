@@ -1,4 +1,4 @@
-export { default as Shortcut } from "./Shortcut";
-export { addShortcuts, removeShortcuts } from "./tsShortcut";
-export type { ShortcutProps } from "./Shortcut";
-export type { OnShortPressedItem } from "./Shortcut";
+export { default as Shortcut } from "./react/Shortcut";
+export { addShortcuts, removeShortcuts } from "./core/Shortcut";
+export type { ShortcutProps } from "./react/Shortcut";
+export type { OnShortPressedItem } from "./core/Shortcut";

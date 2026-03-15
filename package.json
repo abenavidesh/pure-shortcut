@@ -1,6 +1,6 @@
 {
     "name": "pure-shortcut",
-    "version": "1.0.0",
+    "version": "2.0.1",
     "type": "module",
     "main": "dist/index.umd.cjs",
     "module": "dist/index.js",
@@ -17,11 +17,7 @@
     },
     "peerDependencies": {
         "react": "^18 || ^19",
-        "react-dom": "^18 || ^19",
-        "tailwindcss": "^4"
-    },
-    "dependencies": {
-        "@iconify/react": "^6.0.2"
+        "react-dom": "^18 || ^19"
     },
     "devDependencies": {
         "@tailwindcss/cli": "^4.2.1",
@@ -29,7 +25,9 @@
         "tailwindcss": "^4.2.1"
     },
     "scripts": {
-        "build": "vite build"
+        "build": "vite build",
+        "build:core": "vite build --config vite.core.config.ts",
+        "build:all": "npm run build && npm run build:core"
     },
     "keywords": [
         "shortcut",
