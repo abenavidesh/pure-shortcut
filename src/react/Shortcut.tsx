@@ -16,13 +16,28 @@
  * ```
  */
 
-import React, { ReactNode, useEffect, useRef } from "react";
-import { addShortcuts, removeShortcuts, OnShortPressedItem } from "../core/Shortcut";
+import React, { ReactNode, useEffect } from "react";
+import {
+  addShortcuts,
+  removeShortcuts,
+  type OnShortPressedItem,
+  type ShortcutScopeId,
+} from "../core/Shortcut";
 
 export interface ShortcutProps {
   children: ReactNode;
   onShortPressed: OnShortPressedItem[];
   className?: string;
+  /**
+   * Identificador opcional de scope para agrupar atajos.
+   * Permite habilitar/deshabilitar todos los atajos asociados a este scope desde el core.
+   */
+  scopeId?: ShortcutScopeId;
+  /**
+   * Si es false, no registra atajos aunque se haya definido onShortPressed.
+   * Por defecto true.
+   */
+  enabled?: boolean;
 }
 
 /**
@@ -33,22 +48,19 @@ const Shortcut: React.FC<ShortcutProps> = ({
   children,
   onShortPressed,
   className,
+  scopeId,
+  enabled = true,
 }) => {
-  // Keep a ref to always use latest onShortPressed handlers
-  const shortcutsRef = useRef(onShortPressed);
-
   useEffect(() => {
-    shortcutsRef.current = onShortPressed;
-  }, [onShortPressed]);
+    if (!enabled || onShortPressed.length === 0) {
+      return;
+    }
 
-  useEffect(() => {
-    // Register the current shortcuts using the core utility
-    // Re-register if the shortcut list changes
-    const remove = addShortcuts(shortcutsRef.current);
+    const remove = addShortcuts(onShortPressed, { scopeId });
     return () => {
       remove();
     };
-  }, [onShortPressed]);
+  }, [enabled, onShortPressed, scopeId]);
 
   return <div className={className}>{children}</div>;
 };

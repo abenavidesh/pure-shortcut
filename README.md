@@ -1,8 +1,8 @@
 # pure-shortcut
 
-[![npm version](https://img.shields.io/npm/v/pure-shortcut.svg?style=flat)](https://www.npmjs.com/package/pure-shortcut)
-[![npm downloads](https://img.shields.io/npm/dm/pure-shortcut.svg?style=flat)](https://www.npmjs.com/package/pure-shortcut)
-[![license](https://img.shields.io/github/license/abenavidesh/pure-shortcut?style=flat)](./LICENSE)
+[![npm version](https://img.shields.io/npm/v/pure-shortcut.svg)](https://www.npmjs.com/package/pure-shortcut)
+[![npm downloads](https://img.shields.io/npm/dm/pure-shortcut.svg)](https://www.npmjs.com/package/pure-shortcut)
+[![license](https://img.shields.io/github/license/abenavidesh/pure-shortcut)](./LICENSE)
 
 > **A modern, flexible, and dependency-free keyboard shortcut handler for React and plain JavaScript/TypeScript—packed with accessibility and productivity features.**
 
@@ -141,11 +141,15 @@ After running `npm run build:core`, you can use the ESM core bundle:
 
 ### `<Shortcut />` React Component
 
-| Prop             | Type                   | Required | Description                                                |
-| ---------------- | ---------------------- | -------- | ---------------------------------------------------------- |
-| `children`       | `ReactNode`            | Yes      | The React content to wrap and enable shortcut handling on. |
-| `onShortPressed` | `OnShortPressedItem[]` | Yes      | Array of shortcut definitions. See structure below.        |
-| `className`      | `string`               | No       | Optional CSS class to apply to the wrapper `<div>`.        |
+
+| Prop             | Type                   | Required | Description                                                                                              |
+| ---------------- | ---------------------- | -------- | -------------------------------------------------------------------------------------------------------- |
+| `children`       | `ReactNode`            | Yes      | The React content to wrap and enable shortcut handling on.                                               |
+| `onShortPressed` | `OnShortPressedItem[]` | Yes      | Array of shortcut definitions. See structure below.                                                      |
+| `className`      | `string`               | No       | Optional CSS class to apply to the wrapper `<div>`.                                                      |
+| `scopeId`        | `ShortcutScopeId`      | No       | Optional scope identifier to group shortcuts (can be enabled/disabled via `enableScope`/`disableScope`). |
+| `enabled`        | `boolean`              | No       | If false, shortcuts are not registered for this component. Default: `true`.                              |
+
 
 #### **OnShortPressedItem Structure**
 
@@ -179,7 +183,13 @@ onShortPressed={[
 You can use pure JavaScript or TypeScript for global or non-React shortcut handling:
 
 ```ts
-import { addShortcuts, removeShortcuts, type OnShortPressedItem } from "pure-shortcut";
+import {
+  addShortcuts,
+  removeShortcuts,
+  enableScope,
+  disableScope,
+  type OnShortPressedItem,
+} from "pure-shortcut";
 
 const shortcuts: OnShortPressedItem[] = [
   { key: "s", ctrlKey: true, onPress: (e) => { e.preventDefault(); alert("Saved!"); } },
@@ -187,15 +197,36 @@ const shortcuts: OnShortPressedItem[] = [
   { key: "y", altKey: true, allowInputs: true, onPress: () => alert("Alt+Y works in input!") }
 ];
 
-const remove = addShortcuts(shortcuts);
+// Global shortcuts without scope
+const removeGlobal = addShortcuts(shortcuts);
+
+// Shortcuts associated with a specific scope
+const removeScoped = addShortcuts(
+  [{ key: "k", ctrlKey: true, onPress: () => alert("Scoped Ctrl+K") }],
+  { scopeId: "command-palette" },
+);
 
 // To clean up:
-remove();          // Removes only these shortcuts
-removeShortcuts(); // Removes all registered shortcuts
+removeGlobal();          // Removes only these shortcuts
+removeScoped();          // Removes only the scoped shortcuts from this call
+removeShortcuts();       // Removes all registered shortcuts
+
+// You can also enable/disable by scope:
+disableScope("command-palette"); // Temporarily disable all shortcuts in that scope
+enableScope("command-palette");  // Re-enable them
 ```
 
 **Direct HTML usage:**  
-Reference the ESM bundle at `dist-core/core.js` from your HTML directly after running `npm run build:core` (see above).
+Reference the ESM bundle at `dist-core/core.js` from your HTML directly (see Basic Usage).
+
+---
+
+## 📝 Changelog (high level)
+
+- **v2.0.2**
+  - Added **shortcut scopes** in the core (`scopeId`, `enableScope`, `disableScope`) to group and toggle shortcut sets.
+  - Exposed scope support in React via new `scopeId` and `enabled` props on the `Shortcut` component.
+  - Introduced a dedicated vanilla core bundle (`dist-core/core.js`) for direct browser usage without React or bundlers.
 
 ---
 
@@ -203,7 +234,7 @@ Reference the ESM bundle at `dist-core/core.js` from your HTML directly after ru
 
 - **Key Events:** All registered shortcut handlers receive the native `KeyboardEvent` object as an argument.
 - **Input Safety:** By default, shortcuts are ignored when the focus is on `<input>`, `<textarea>`, or any `contentEditable` element, ensuring text entry is never interrupted.  
-  If you want a shortcut to trigger even when a text field is focused, set the `allowInputs` property to `true` for that shortcut.
+If you want a shortcut to trigger even when a text field is focused, set the `allowInputs` property to `true` for that shortcut.
 
 ---
 
@@ -242,6 +273,7 @@ function Demo() {
   );
 }
 ```
+
 ## 🙌 Contributing & Feedback
 
 We welcome contributions, feedback, and bug reports!

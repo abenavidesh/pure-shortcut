@@ -37,8 +37,12 @@ export type OnShortPressedItem = {
   onPress: (e: KeyboardEvent) => void;
 };
 
+export type ShortcutScopeId = string;
+
 type ShortcutRegistry = {
   shortcuts: OnShortPressedItem[];
+  scopeId?: ShortcutScopeId;
+  enabled: boolean;
 };
 
 /**
@@ -73,6 +77,7 @@ function _isFromTextInput(target: EventTarget | null): boolean {
  */
 function _handleKeyDown(event: KeyboardEvent) {
   for (const registry of _shortcutRegistries) {
+    if (!registry.enabled) continue;
     const shortcuts = registry.shortcuts;
     for (const shortcut of shortcuts) {
       const {
@@ -111,12 +116,19 @@ function _handleKeyDown(event: KeyboardEvent) {
  * @param {OnShortPressedItem[]} shortcuts
  * @returns {() => void} Unregister function
  */
-export function addShortcuts(shortcuts: OnShortPressedItem[]): () => void {
+export function addShortcuts(
+  shortcuts: OnShortPressedItem[],
+  options?: { scopeId?: ShortcutScopeId },
+): () => void {
   if (!Array.isArray(shortcuts)) {
     throw new Error("addShortcuts: shortcuts must be an array");
   }
 
-  const registry: ShortcutRegistry = { shortcuts };
+  const registry: ShortcutRegistry = {
+    shortcuts,
+    scopeId: options?.scopeId,
+    enabled: true,
+  };
   _shortcutRegistries.push(registry);
 
   // If this is the first shortcut being registered, start listening.
@@ -143,4 +155,27 @@ export function addShortcuts(shortcuts: OnShortPressedItem[]): () => void {
 export function removeShortcuts(): void {
   _shortcutRegistries.length = 0;
   window.removeEventListener("keydown", _handleKeyDown);
+}
+
+/**
+ * Enables all shortcuts associated with a given scopeId.
+ */
+export function enableScope(scopeId: ShortcutScopeId): void {
+  _shortcutRegistries.forEach((registry) => {
+    if (registry.scopeId === scopeId) {
+      registry.enabled = true;
+    }
+  });
+}
+
+/**
+ * Disables all shortcuts associated with a given scopeId.
+ * Shortcuts remain registered but will not fire while disabled.
+ */
+export function disableScope(scopeId: ShortcutScopeId): void {
+  _shortcutRegistries.forEach((registry) => {
+    if (registry.scopeId === scopeId) {
+      registry.enabled = false;
+    }
+  });
 }
